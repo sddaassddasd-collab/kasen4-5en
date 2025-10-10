@@ -24,15 +24,43 @@
     transition:opacity .15s;
   }
   .btn:hover{opacity:.85}
-  .hint{
-    opacity:.7; font-size:.85rem; text-align:center; margin-bottom:1rem;
+
+  /* 🌀 簡單的載入動畫 */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: opacity .4s ease;
   }
+  #loader.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255,255,255,0.1);
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
+  <!-- 🌀 加入這段 -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+
   <!-- 內嵌的 B 網站 -->
   <iframe 
+    id="iframe"
     src="https://web.archive.org/web/20190414063400/https://gwulo.com/atom/28298"
     allow="fullscreen"
     referrerpolicy="no-referrer"
@@ -46,13 +74,20 @@
   (function(){
     const btn = document.getElementById('goBtn');
     const targetURL = "https://ths.li/RobvFsv";
+    const iframe = document.getElementById('iframe');
+    const loader = document.getElementById('loader');
+
+    // 🌀 當 iframe 載入完成後，淡出 loader
+    iframe.addEventListener('load', () => {
+      loader.classList.add('hide');
+      setTimeout(() => loader.remove(), 500);
+    });
 
     btn.addEventListener('click', function(){
       try {
         window.top.location.replace(targetURL);
       } catch (err) {
         console.warn("Top navigation blocked:", err);
-        // 若被 sandbox 擋，退而求其次以 <a target="_top"> 導向
         window.open(targetURL, "_top");
       }
     });
